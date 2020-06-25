@@ -6,9 +6,20 @@
     <b-row align-h="center">
         <b-col cols="8">
 
-            <b-card title="Inicio de sesión">
+            <b-card title="Inicio de sesión" class="my-3">
+            
+            @if ($errors->any())
+                <b-alert show variant="danger">
+                    <ul>
+                    @foreach ($errors ->all() as $error)
+                        <li>{{$error}}</li>
+                    @endforeach
+                    </ul>
 
-            <b-alert show>Por favor ingrese su contraseña</b-alert>
+                </b-alert>
+            @else
+                <b-alert show>Por favor ingrese su contraseña</b-alert>
+            @endif    
 
                 <b-form method="POST" action="{{ route('login') }}">
                         {{ csrf_field() }}
@@ -40,7 +51,7 @@
                     </b-form-group>
 
                     <b-form-group>
-                        <b-form-checkbox name="remember" {{ old('remember') ? 'checked' : '' }}                    >
+                        <b-form-checkbox name="remember" {{ old('remember') ? 'checked' : '' }}>
                             Recordar sesión
                         </b-form-checkbox>
                     </b-form-group>

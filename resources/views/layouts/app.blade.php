@@ -24,17 +24,23 @@
             <b-collapse id="nav-text-collapse" is-nav>
 
                 <b-navbar-nav class="ml-auto">
-                    <!-- @guest
+                    @guest
                         <b-nav-item href="{{ route('login') }}">Ingresar</b-nav-item>
                         <b-nav-item href="{{ route('register') }}">Registrar</b-nav-item>
-                    @else -->
+                    @else
 
                         <!-- Navbar dropdowns -->
-                        <b-nav-item-dropdown text="Username" right>
-                            <b-dropdown-item href="#">Cerrar sesión</b-dropdown-item>
+                        <b-nav-item-dropdown text="{{ auth()->user()->name }}" right>
+                            <b-dropdown-item href="#" @click="logout">
+                                Cerrar sesión
+                            </b-dropdown-item>
                         </b-nav-item-dropdown>
+                        
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                            {{ csrf_field() }}
+                        </form>
 
-                    <!-- @endguest -->
+                    @endguest
 
                 </b-navbar-nav>
 
