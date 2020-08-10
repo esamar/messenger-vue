@@ -8,15 +8,23 @@ use DB;
 
 class MessageController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $userId = auth()->id();
+        $contactId = $request -> contact_id;
         return Message::select(
             'id',
             DB::raw("IF(from_id = $userId , TRUE , FALSE ) as written_by_me"),
             'created_at',
             'content'
-            )->get();
+            )
+            ->where(function ($query) use ($userId, $contactId){
+                $query->where('from_id', $userId)->where('to_id', $contactId);
+            })
+            ->orwhere(function ($query) use ($userId, $contactId){
+                $query->where('to_id', $userId)->where('from_id', $contactId);
+            })
+            ->get();
 
     }
     public function store(Request $request)

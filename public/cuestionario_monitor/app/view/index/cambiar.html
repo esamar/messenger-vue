@@ -1,0 +1,68 @@
+<div class="row">
+	<div class="col-lg-3"></div>
+	    <div class="col-lg-6 text-center">
+	      	<div class="card" id="rootwizard" style="background: none;-webkit-box-shadow:none;box-shadow:none;">
+	        	<div class="card-heading ">
+	        		
+	            <div style="background-color: #fff;border-radius: 22px;margin-top: 20px;padding: 1px 10px;border: 1px solid #d6f0ff;">
+	          		<h1><strong>Cambiar contraseña</strong></h1>
+	          		<div style="    margin: 10px;padding: 20px 10px;">
+		          		<div class="form-group label-floating is-empty">
+	                        <label class="control-label">Contraseña actual</label>
+	                        <input type="password" class="form-control col-lg-5" name="p1" id="p1">
+	                     </div>
+	                     <div class="form-group label-floating is-empty">
+	                        <label class="control-label">Nueva contraseña</label>
+	                        <input type="password" class="form-control col-lg-5" name="p2" id="p2">
+	                     </div>
+	                     <div class="form-group label-floating is-empty">
+	                        <label class="control-label">Repita la nueva contraseña</label>
+	                        <input type="password" class="form-control col-lg-5" name="p3" id="p3">
+	                     </div>
+	                     <div class="row">
+	                     	<div class="col-lg-6">                                
+                                <button class="btn btn-primary "  onclick="window.location.href = '?'">Cancelar<div class="ripple-container"></div></button>
+                              </div>
+                              <div class="col-lg-6">
+                                <button class="btn btn-warning" data-toggle="modal" data-target="#toolabr_modal" onclick="c()">Cambiar<div class="ripple-container"></div></button>
+                              </div>
+                          </div>
+                    </div>
+	              </div>   
+	        	</div>
+	      	</div>
+	    </div>
+	<div class="col-lg-3"></div>
+</div>
+<script>
+	function c(){
+		var p1 = $('#p1').val();
+		var p2 = $('#p2').val();
+		var p3 = $('#p3').val();
+		if(p1.trim()=='') {mensajezz('Ingrese la contraseña');return;}
+		if(p2.trim()=='') {mensajezz('Debe ingresar la contraseña nueva');return;}
+		if(p2!=p3) {mensajezz('Los campos de las contraseñas nuevas deben ser iguales');return;}
+
+		$.ajax({
+	        type: "POST",
+	        url: '?k=index/c',
+	        data: {'p1':p1,'p2':p2}, 
+	        success: function(d){
+		        var a=d.split('-');
+		        if(a[0]=='0'){ 		        	
+		          	mensajezz('No se pudo cambiar la contraseña');		            
+		      	}else{
+		      		$('#mod-ace').attr('onclick',"window.location.href = '?'");
+		      		mensajezz('Se cambio la contraseña');
+		      	}
+	        }
+	     });
+	}
+
+	function mensajezz(msj){
+        $('#mod-msj').html(msj);
+        $('#mod-bot').css('display','none');
+        $('#mod-mini').css('display','block');
+  }
+
+</script>

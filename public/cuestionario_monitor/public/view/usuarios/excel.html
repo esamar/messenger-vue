@@ -1,0 +1,61 @@
+<div class="row">
+    <div class="col-lg-12">
+      	<div class="card" id="rootwizard" style="background: none;-webkit-box-shadow:none;box-shadow:none;">
+        	<div class="card-heading text-center">        		
+	            <div class="row">
+	            	<div class="col-lg-12" style="background: #fff;border-radius: 10px;border:1px #cee9ff solid;">
+	            	<button class="btn btn-primary btn-sm" style="position: absolute;left: 10px;" onclick="window.location.href = '?k=usuarios'">Volver</button>
+	            		<h2><strong>Usuarios importados del Excel</strong></h2>
+	            		<h4 style="font-size: 11px;">Nota: Si en el campo estado aparece un check, es que se registro correctamente, si tiene un aspa, no se registro posiblemente por que el usuario ya existe. </h4>
+	            		<div class="card-body">
+
+	                    	<div class="table-responsive text-left" style="font-size: 12px;">
+		                        <table class="table table-striped">
+		                          <thead>
+		                            <tr>
+		                              <th>#</th>
+		                              <th>Usuario</th>
+		                              <th>Clave</th>
+		                              <th>Nombres</th>
+		                              <th>Ap. Paterno</th>
+		                              <th>Ap. Materno</th>
+		                              <th>Nombre IE</th>
+                                              <th>Grado</th>
+                                              <th>Seccion</th>
+                                              <th>Semana</th>
+		                              <th>Cod. Modular</th>
+		                              <th>IDSede</th>
+		                              <th>Sede</th>
+		                              <th>Estado</th>
+		                            </tr>
+		                          </thead>
+		                          <tbody>
+		                          	<?php for($i=0;$i<sizeof($data);$i++) { ?>
+		                            <tr>
+		                              <th scope="row"><?php echo ($i+1) ?></th>
+		                              <td><?php echo $data[$i]['usuario'] ?></td>
+		                              <td><?php echo $data[$i]['clave'] ?></td>
+		                              <td><?php echo $data[$i]['nombres'] ?></td>
+		                              <td><?php echo $data[$i]['paterno'] ?></td>
+		                              <td><?php echo $data[$i]['materno'] ?></td>
+		                              <td><?php echo $data[$i]['ie'] ?></td>
+		                              <td><?php echo $data[$i]['modular'] ?></td>
+		                              <td><?php echo $data[$i]['id'] ?></td>
+                                              <td><?php echo $data[$i]['grado'] ?></td>
+                                              <td><?php echo $data[$i]['seccion'] ?></td>
+                                              <td><?php echo $data[$i]['semana'] ?></td>
+		                              <td><?php echo $data[$i]['sede'] ?></td>
+		                              <td class="text-center" style="font-size: 11px;"><i class="zmdi zmdi-<?php echo ($data[$i]['estado']==1)?'check" style="color:green;"':'close" style="color:red;"'; ?>"></i></td>
+		                            </tr>
+		                            <?php } ?>
+		                          </tbody>
+		                        </table>
+		                      </div>
+	                   
+	                  	</div>
+	            	</div>
+	            </div>                      
+        	</div>
+      	</div>
+    </div>
+</div>

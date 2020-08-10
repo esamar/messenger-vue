@@ -9,12 +9,12 @@
                 </b-col>
 
                 <b-col cols="6" align-self="center" class="d-none d-md-block">
-                    <p class="mb-1">{{name}}</p>
-                    <p class="text-muted small mb-0">{{lastMessage}}</p>
+                    <p class="mb-1">{{ conversation.contact_name }}</p>
+                    <p class="text-muted small mb-0">{{ conversation.last_message }}</p>
                 </b-col>
 
                 <b-col cols="3" class="d-none d-md-block">
-                    <p class="text-muted small">{{lastTime}}</p>
+                    <p class="text-muted small">{{ conversation.last_time }}</p>
                 </b-col>
 
             </b-row>
@@ -25,17 +25,13 @@
 
 <script>
     export default {
-        props:[
-            'variantg'
-        ],
+        props: {
+            variantg : String,
+            conversation : Object
+        },
         data()
         {
             return{
-                name: 'Juan Ramos',
-                lastMessage: 'Tú: Hasta Luego',
-                lastTime: '1:58 pm',
-                variant: 'Dark'
-
 
             };
 

@@ -1,0 +1,466 @@
+<div class="row">
+    <div class="col-lg-12">
+      	<div class="card" id="rootwizard" style="background: none;-webkit-box-shadow:none;box-shadow:none;">
+        	<div class="card-heading text-center">
+            <div class="row">
+            	<div class="col-lg-5" style="background: #fff;border-radius: 10px;border:1px #cee9ff solid;">
+            		<h2><strong>Registro de usuarios</strong></h2>
+            		<div class="card-body">
+                    
+
+                      <div>
+                          <label class="radio-inline">
+                            <input type="radio" name="tipo" id="rad-est" value="3" checked="" onclick="tipox(3)"><span class="circle"></span><span class="check"></span>Director
+                          </label>
+                          <label class="radio-inline">
+                            <input type="radio" name="tipo" id="rad-adm" value="1" onclick="tipox(1)"><span class="circle"></span><span class="check"></span>Administrador
+                          </label>
+                          <label class="radio-inline">
+                            <input type="radio" name="tipo" id="rad-adm" value="2" onclick="tipox(2)"><span class="circle"></span><span class="check"></span>Supervisor
+                          </label>
+                        </div>
+                        <br>
+                        <div id="selectIE" style="background-color: #f5fbff;border-radius: 10px;padding:1px 30px 10px;">
+                          <select class="form-control" id="sedes" onchange="getIE(1)">
+                            <option style="color:#ccc;" value="0">Sede</option>
+                            <?php foreach ($data['sedes'] as $d) { ?>
+                                <option value="<?php echo $d['id'] ?>"><?php echo $d['sedeid'].' - '.$d['nombre']?></option>
+                            <?php }?>
+                          </select>
+                        <div id="multisedes" style="display:none;">
+<!--                            <input type="button" id="get" value="getoptions" />-->
+                            <select id="sedes2" class="form-control" multiple="multiple">
+                                <?php foreach ($data['sedes'] as $d) { ?>
+                                <option value="<?php echo $d['id'] ?>"><?php echo $d['sedeid'].' - '.$d['nombre']?></option>
+                            <?php }?>
+                            </select>
+                        </div>
+                            
+                          <select class="form-control" id="ies">
+                            <option style="color:#ccc;" value="0">Institución educativa</option>
+                          </select>
+                        </div>
+                        <br>
+                          <input type="hidden" id="idest" value="0">
+                      <div class="form-inline">
+	                      <div class="form-group label-floating is-empty">
+	                        <label class="control-label">DNI / Usuario</label>
+	                        <input type="text" class="form-control" name="dni"  id="dni">
+	                      </div>
+	                      <div class="form-group label-floating is-empty">
+	                        <label class="control-label">Contraseña (opcional)</label>
+	                        <input type="password" class="form-control" name="pass" id="pass">
+	                      </div>
+                      </div>
+
+                      <div class="form-group label-floating is-empty">
+                        <label class="control-label">Nombres</label>
+                        <input type="text" class="form-control" name="nom" id="nom">
+                      </div>
+                      <div class="form-group label-floating is-empty">
+                        <label class="control-label">Apellido paterno</label>
+                        <input type="text" class="form-control" name="pat" id="pat">
+                      </div>
+                      <div class="form-group label-floating is-empty">
+                        <label class="control-label">Apellido materno</label>
+                        <input type="text" class="form-control" name="mat" id="mat">
+                      </div>
+                      <div class="row"><center>
+                          <div class="col-lg-12">
+                        <button type="submit" class="btn btn-primary" id="btn-reg" onclick="regEst()">Registrar<div class="ripple-container"></div></button>
+                        </div>
+                          <div class="col-lg-6">
+                        <button type="submit" class="btn btn-primary" id="btn-can" style="display:none;" onclick="cancelarz()">Cancelar<div class="ripple-container"></div></button></div>
+                          <div class="col-lg-6">
+                        <button type="submit" class="btn btn-warning" id="btn-gua" style="display:none;" onclick="actEst()">Guardar<div class="ripple-container"></div></button></div></center>
+                      </div>
+                      <br>
+                      <div class="row">
+                        <center>
+                        <form action="?k=usuarios/cargar" method="post" enctype="multipart/form-data">
+                          <h2><strong>Registro desde excel</strong></h2>
+                          <h4 style="font-size: 12px;">Para la carga de usuarios por excel descargue el siguiente modelo y llene con los datos requeridos, se registrara la sede y las instituciones si no estan registrados. <a href="?k=usuarios/modelo" target="_blank" style="color: #008eff;">Descargar.</a></h4> 
+                            <div class="form-group is-fileinput">
+                              <div class="col-sm-12">
+                                <div class="input-group">
+                                  <input id="fileInput" type="file" name="fileInput" data-buttontext="Choose file" data-buttonname="btn-outline btn-primary" data-iconname="ion-image mr-5" data-rule-required="true" accept=".xlsx" class="filestyle" aria-required="true">
+                                  <div class="input-group">
+                                    <input type="text" readonly="" class="form-control" placeholder="Seleccione un archivo...">
+                                    <span class="input-group-btn input-group-sm">
+                                      <button type="button" class="btn btn-primary btn-fab btn-fab-sm">
+                                        <i class="zmdi zmdi-attachment-alt"></i>
+                                      </button>
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>                            
+                              <button class="btn btn-primary btn-sm" type="submit">Cargar</button>
+                            </form>
+                        </center>
+                      </div>
+
+                   
+                  </div>
+            	</div>
+              <div class="col-lg-1"></div>
+            	<div class="col-lg-6" style="background: #fff;border-radius: 10px;border: 1px #cee9ff solid;">
+            		<h2><strong>Usuarios registrados</strong></h2>
+            		<div class="card-body" style="padding: 15px 0px;">
+                    <div class='row' id="selectIE" style="background-color: #f5fbff;border-radius: 10px;padding:0px 0px 10px;margin: 4px;">
+                        <div class="col-lg-6">
+                          <select class="form-control" id="sedesx" onchange="getIE(2)" style="margin: 2px 0 0;">
+                            <option value="0">Admistradores</option>
+                            <option value="-1">Supervisores</option>
+                            <?php foreach ($data['sedes'] as $d) { ?>
+                                <option value="<?php echo $d['id'] ?>"><?php echo $d['sedeid'].' - '.$d['nombre']?></option>
+                            <?php }?>
+                          </select>
+                        </div>
+                        <div class="col-lg-6">
+                          <select class="form-control" id="iesx" onchange="buscar()">
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="table-responsive text-left">
+                        <table class="table">
+                          <thead>
+                            <tr>
+                              <th>Usuario</th>
+                              <th>Tipo</th>
+                              <th>Nombre completo</th>
+                              <th></th>
+                              <th></th>
+                            </tr>
+                          </thead>
+                          <tbody id="bsq">
+                          <?php foreach ($data['users'] as $d) { ?>
+                            <tr>
+                              <td><?php echo $d['user']?></td>
+                              <td><?php echo $d['rol']?></td>
+                              <td><?php echo $d['nombres'].' '.$d['paterno'].' '.$d['materno']?></td>
+                              <th class="text-center"><a href="#" title="Editar" onclick="editarz('<?php echo $d['id'];?>')"><i class="zmdi zmdi-edit text-primary"></i></a></th>
+                              <th class="text-center"><a href="#" title="Eliminar" data-toggle="modal" data-target="#toolabr_modal" onclick="mensajez('<?php echo $d['id'];?>','<?php echo $d['nombres'].' '.$d['paterno'].' '.$d['materno']?>')"><i class="zmdi zmdi-delete text-danger"></i></a></th>
+                            </tr>
+                          <?php }?>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+            	</div>
+
+            </div>                      
+        	</div>
+      	</div>
+    </div>
+</div>
+
+<script>
+  function validarCampos(tipo,act){
+    var ies = $('#ies').val();
+    var sedeEst = $('#sedes').val();
+    var sedesSup = $("#sedes2").multipleSelect("getSelects")
+    var dni = $('#dni').val();
+    var pass = $('#pass').val();
+    var nom = $('#nom').val();
+    var pat = $('#pat').val();
+    var mat = $('#mat').val();
+    var msje="";
+    var resultado=true;
+    if(ies==0 && tipo==3){msje+=" - Debe seleccionar una Institución Educativa. \n";}
+    if(sedeEst==0 && tipo==3){msje+=" - Debe seleccionar una Sede. \n";}
+    if(sedesSup.length==0 && tipo==2){msje+=" - Debe seleccionar al menos una Sede \n";}
+    if(dni==""){msje+=" - El campo DNI/Usuario es obligatorio. \n";}
+    if(pass=="" && act==1){msje+=" - El campo Contraseña es obligatorio. \n";}
+    if(nom==""){msje+=" - El campo Nombres es obligatorio. \n";}
+    if(pat==""){msje+=" - El campo Apellido Paterno es obligatorio. \n";}
+    if(mat==""){msje+=" - El campo Apellido Materno es obligatorio. \n";}
+    if(msje.length>0){
+        resultado=false;
+        alert("Se encontraron los siguientes errores: \n"+msje);
+    }
+    return resultado;
+  }
+  $('#sedes2').multipleSelect({
+        placeholder: "Sedes",
+        filter: true
+    });
+    $(document).ready(function(){
+        $("#get").on('click', function() {
+            console.log($("#sedes2").multipleSelect("getSelects"));
+        });
+    });
+    
+  function buscar(){
+     var i=$('#iesx').val();
+     if(i!=0){
+        $.ajax({
+          type: "POST",
+          url: '?k=usuarios/buscar',
+          data: {'p':i}, 
+          success: function(d){ 
+            $('#bsq').html(d);
+          }
+        });
+     }
+     else{
+      $('#bsq').html('');
+     }
+  }
+
+  function getIE(n){
+    var m='';
+    if(n==2) {
+      $('#bsq').html('');
+      m='x';
+      if($('#sedesx').val()==0){
+          $('#iesx').html('');
+          $.ajax({
+            type: "POST",
+            url: '?k=usuarios/buscar',
+            data: {'p':0}, 
+            success: function(d){ 
+              $('#bsq').html(d);
+            }
+          });
+          return;
+      }
+      if($('#sedesx').val()==-1){
+          $.ajax({
+            type: "POST",
+            url: '?k=usuarios/buscars',
+            data: {}, 
+            success: function(d){ 
+              $('#bsq').html(d);
+            }
+          });
+          return;
+      }
+    }
+    var id = $('#sedes'+m).val();
+    $.ajax({
+      type: "POST",
+      url: '?k=usuarios/geties',
+      data: {'id':id}, 
+      success: function(d){ 
+          $('#ies'+m).html(d);
+      }
+    }); 
+  }
+  function tipox(n){
+      
+        cancelarz();
+        switch (n){
+          case 1:{
+            $('#sedes').show();
+            $('#multisedes').hide();
+            $('#selectIE').css("display","none");
+          }break;
+          case 3:{
+            $('#sedes').show();
+            $('#multisedes').hide();
+            $('#selectIE').css("display","block");
+            $('#ies').css("display","block");
+          }break;
+          case 2:{
+            $('#sedes').hide();      
+            $('#multisedes').show();
+            $('#selectIE').css("display","block");
+            $('#ies').css("display","none");
+          }break;
+        }
+  }
+  
+  function regEst(){
+    var tipo= $('input:radio[name=tipo]:checked').val();
+    if(validarCampos(tipo,1)){
+        var dni = $('#dni').val();
+        var nom = $('#nom').val();
+        var pat = $('#pat').val();
+        var mat = $('#mat').val();
+        var p = $('#pass').val();
+        var grado = 0;
+        var seccion = '';
+        var semana = '';
+        var ie=0;
+        if(tipo==2){ //Supervisor
+            var sedes = $("#sedes2").multipleSelect("getSelects");
+            $.ajax({
+              type: "POST",
+              url: '?k=usuarios/regSupervisor',
+              data: {'dni':dni,'nom':nom,'pat':pat,'mat':mat,'tipo':tipo,'sedes':sedes,'p':p}, 
+              success: function(d){ 
+                if(d=='1'){
+                  alert('Se guardo correctamente');
+                  window.location.href = "?k=usuarios";
+                }else{
+                  alert('El usuario ya existe.');
+                }
+              }
+            });
+        }else{ //Admin y Estudiante
+            if(tipo==3){
+                sede=$('#sedes').val()
+                ie=$('#ies').val();
+            }
+            $.ajax({
+              type: "POST",
+              url: '?k=usuarios/registrar',
+              data: {'dni':dni,'nom':nom,'pat':pat,'mat':mat,'tipo':tipo,'p':p,'ie':ie,'grado':grado,'seccion':seccion, 'semana':semana, 'sede':0}, 
+              success: function(d){ 
+                if(d=='1'){
+                  alert('Se guardo correctamente');
+                  window.location.href = "?k=usuarios";
+                }else{
+                  alert('El usuario ya existe.');
+                }
+              }
+            });
+        }
+    }
+  }
+
+  function actEst(){
+    var tipo= $('input:radio[name=tipo]:checked').val();
+    if(validarCampos(tipo,2)){
+        var id = $('#idest').val();
+        var ie=0;
+        var dni = $('#dni').val();
+        var nom = $('#nom').val();
+        var pat = $('#pat').val();
+        var mat = $('#mat').val();
+        var sede = 0;
+        if(tipo==2){ //Supervisor
+            var sedes = $("#sedes2").multipleSelect("getSelects");
+            $.ajax({
+              type: "POST",
+              url: '?k=usuarios/actSupervisor',
+              data: {'dni':dni,'nom':nom,'pat':pat,'mat':mat,'id':id, 'sedes':sedes}, 
+              success: function(d){ 
+                if(d=='1'){
+                  alert('Se guardo correctamente');
+                  window.location.href = "?k=usuarios";
+                }else{
+                  alert('El usuario ya existe.');
+                }
+              }
+            });
+        }else{ //Admin y Estudiante
+            if(tipo==3){
+                ie=$('#ies').val();
+                sede = $('#sedes').val();
+            }
+            $.ajax({
+              type: "POST",
+              url: '?k=usuarios/actualizar',
+              data: {'dni':dni,'nom':nom,'pat':pat,'mat':mat,'ie':ie,'idusuario':id,'sede':sede}, 
+              success: function(d){
+                if(d=='1'){
+                  alert('Se guardo correctamente');
+                  window.location.href = "?k=usuarios";
+                }else{
+                  alert('El usuario ya existe.');
+                }
+              }
+            });
+        }
+    }
+  }
+
+  function editarz(i){
+    $.ajax({
+      type: "POST",
+      url: '?k=usuarios/getuser',
+      data: {'id':i}, 
+      success: function(d){
+          var a = d.split('-/-');
+          $('.label-floating').val('');
+          $('#idest').val(a[0]);
+          $('#dni').val(a[2]);
+          $('#nom').val(a[3]);
+          $('#pat').val(a[4]);
+          $('#mat').val(a[5]);          
+          $('#pass').attr('disabled','');
+          
+          if(a[1]=='3'){
+            $('#selectIE').show();
+            $('#sedes').show();
+            $('#multisedes').hide();
+            $('#ies').show();
+            $('input[name=tipo][value=3]').prop('checked', 'checked');
+            $('#sedes').val(a[7]);
+            var id = a[7];
+            $.ajax({
+              type: "POST",
+              url: '?k=usuarios/geties',
+              data: {'id':id}, 
+              success: function(e){ 
+                  $('#ies').html(e);
+                  $('#ies').val(a[6]);
+              }
+            }); 
+          }else if(a[1]=='2'){
+              $('#selectIE').show();
+              $('#ies').hide();
+              $('#sedes').hide();
+              $('#multisedes').show();
+              $('input[name=tipo][value=2]').prop('checked', 'checked');
+              $.ajax({
+                type: "POST",
+                url: '?k=usuarios/getsedes',
+                data: {'id':i}, 
+                success: function(e){
+                    user_sedes=JSON.parse(e);
+                    $("#sedes2").multipleSelect("setSelects", user_sedes);
+                }
+              });
+          }else{
+            $('#selectIE').hide();
+            $('input[name=tipo][value=1]').prop('checked', 'checked');
+          }
+
+          $('.label-floating').removeClass('is-empty');
+
+          $('#btn-reg').css('display','none');
+          $('#btn-gua').css('display','block');
+          $('#btn-can').css('display','block');
+      }
+    });  
+  }
+
+  function cancelarz(){
+    $('#alternativas').html(' ');
+      $("#sedes2").multipleSelect("setSelects", []);
+      $('.label-floating').addClass('is-empty'); 
+      $('#btn-can').css('display','none');
+      $('#btn-gua').css('display','none');
+      $('#btn-reg').css('display','block');
+      $('#ies').val(0);
+      $('#sedes').val(0);
+      $('#dni').val('');
+      $('#nom').val('');
+      $('#mat').val('');
+      $('#pat').val('');
+      $('#pass').attr('disabled',false);
+  }
+
+   function eliminarz(n){
+        $.ajax({
+          type: "POST",
+          url: '?k=usuarios/delete',
+          data: {'id':n}, 
+          success: function(d){ 
+            alert('Se elimino correctamente');
+            window.location.href = "?k=usuarios";
+          }
+        }); 
+    }
+
+    function mensajez(id,num){
+        var msj = '¿Esta seguro de eliminar al usuario: '+num+'?';
+        $('#mod-msj').html(msj);
+        $('#mod-gua').attr('onclick','eliminarz('+id+')');
+  }  
+    
+</script>

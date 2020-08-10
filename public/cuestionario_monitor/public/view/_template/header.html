@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head><meta http-equiv="Content-Type" content="text/html; charset=gb18030">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <meta name="description" content="">
+        <meta name="keywords" content="">
+        <title>Cuestionario Nacional PISA</title>
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700|Poppins:300,400,500,600" rel="stylesheet">
+        <link rel="icon" href="public/img/favicon.ico" type="image/x-icon">
+        <link rel="stylesheet" href="public/css/vendor.bundle.css">
+        <link rel="stylesheet" href="public/css/app.bundle.css">
+        <link rel="stylesheet" href="public/css/theme-a.css">
+        <link rel="stylesheet" type="text/css" href="public/css/multiple-select.css">
+        
+    </head>
+
+    <body>
+        <script src="public/js/vendor.bundle.js"></script>
+        <script src="public/js/app.js"></script>
+        <script src="public/js/multiple-select.js"></script>
+        <div id="app_wrapper">
+            <header id="app_topnavbar-wrapper">
+                <nav role="navigation" class="navbar topnavbar">
+                    <div class="nav-wrapper">
+                        <div id="logo_wrapper" class="nav navbar-nav">
+                            <ul>
+                                <li class="logo-icon">
+                                    <a href="?">
+                                        <div class="logo">
+                                            <img src="public/img/logo/logo-icon.png" alt="Logo">
+                                        </div>
+                                        <h1 class="brand-text">Cuestionario</h1>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <ul class="nav navbar-nav left-menu ">
+                            <?php if ($_SESSION['rol']!=3){ ?>
+                            <li class="menu-icon">
+                                <a href="javascript:void(0)" role="button" data-toggle-state="app_sidebar-menu-collapsed" data-key="leftSideBar">
+                                    <i class="mdi mdi-backburger"></i>
+                                </a>
+                            </li>
+                            <?php } ?>
+                            <?php if ($_SESSION['rol']==3){ ?>
+                            <li class="menu-icon">
+                                <a href="javascript:void(0)" style="cursor: default;margin-left: 30px;">
+                                    <?php echo $_SESSION['nombre'] ?>
+                                </a>
+                            </li>
+                            <?php } ?>
+                        </ul>
+                        <ul class="nav navbar-nav pull-right"> 
+                            <li class="last">
+                                <a href="#" data-toggle="modal" data-target="#toolabr_modal" onclick="cerrar(<?php echo ($_SESSION['rol']==3)?'0':'1'; ?>)" title="Cerrar Sesión">
+                                    Cerrar sesión
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </header>
+            <?php if ($_SESSION['rol']!=3){ ?>
+            <aside id="app_sidebar-left">
+                <nav id="app_main-menu-wrapper" class="scrollbar">
+                    <div class="sidebar-inner sidebar-push">
+                        <div class="card profile-menu" id="profile-menu" style="display: block;">
+                            <header class="card-heading card-img alt-heading">                              
+                                <a href="javascript:void(0)" class="info" data-profile="open-menu"><span><?php echo (strlen($_SESSION['nombre'])>25)?substr($_SESSION['nombre'],0,25).'...':$_SESSION['nombre']; ?></span></a>                            
+                            </header>
+                            <ul class="submenu" style="display: none;">
+                                <li>
+                                    <a href="javascript:void(0)" style="cursor: default;"><i class="zmdi zmdi-account"></i>Usuario: <?php echo $_SESSION['user']?></a>
+                                </li>
+                                <?php if($_SESSION['rol']==3){ ?>
+                                <li>
+                                    <a href="javascript:void(0)" style="cursor: default;"><i class="zmdi zmdi-home"></i><?php echo $_SESSION['institucion']?></a>
+                                </li>
+                                <li>
+                                    <a href="javascript:void(0)" style="cursor: default;"><i class="zmdi zmdi-globe "></i>Sede: <?php echo $_SESSION['sede']?></a>
+                                </li>
+                                <?php } ?>
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="?k=index/cambiar" style="background-color:#d7edff;"><i class="zmdi zmdi-settings"></i>Cambiar contraseña</a>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="#" data-toggle="modal" data-target="#toolabr_modal" onclick="cerrar(<?php echo ($_SESSION['rol']==3)?'0':'1'; ?>)" style="background-color:#d7edff;"><i class="zmdi zmdi-sign-in"></i> Cerrar Sesión</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <ul class="nav nav-pills nav-stacked">
+                            <?php if($_SESSION['rol']==3) {?>
+                            <li id="cuestionario">
+                                <a href="?k=cuestionario"><i class="zmdi zmdi-edit"></i>Cuestionario<div class="ripple-container"></div></a>
+                            </li>
+                            <li id="estado">
+                                <a href="?k=estado"><i class="zmdi zmdi-file"></i>Estado<div class="ripple-container"></div></a>
+                            </li>
+                            <?php }else if($_SESSION['rol']==1) {?>
+                            <li id="reportes">
+                                <a href="?k=reportes"><i class="zmdi zmdi-chart"></i>Generar reportes<div class="ripple-container"></div></a>
+                            </li>
+                            <li id="preguntas">
+                                <a href="?k=preguntas"><i class="zmdi zmdi-help-outline"></i>Administrar preguntas<div class="ripple-container"></div></a>
+                            </li>
+                            <li id="instituciones">
+                                <a href="?k=instituciones"><i class="zmdi zmdi-home"></i>Administrar instituciones<div class="ripple-container"></div></a>
+                            </li>
+                            <li id="usuarios">
+                                <a href="?k=usuarios"><i class="zmdi zmdi-accounts-alt"></i>Administrar usuarios<div class="ripple-container"></div></a>
+                            </li>
+                            <?php } else {?>
+                            <li id="supervisor">
+                                <a href="?k=supervisor"><i class="zmdi zmdi-chart"></i>Generar reportes<div class="ripple-container"></div></a>
+                            </li>
+                            <?php }?>
+                        </ul>                    
+                    </div>
+                </nav>
+            </aside>
+            <?php } ?>
+
+
+            <section id="content_outer_wrapper" style="<?php echo ($_SESSION['rol']==3)?'padding-left:0;':''; ?>">
+                <div id="content_wrapper">
+                    <div id="header_wrapper" class="header-sm hidden-print">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <header id="header">
+                                        <h1><?php echo ($pagina=='cuestionario' || $pagina=='estado')?'Cuestionario nacional PISA para el estudiante':ucfirst($pagina) ?></h1>
+                                    </header>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="content" class="container">
+                        <div class="content-body">

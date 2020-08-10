@@ -1,0 +1,409 @@
+<script>
+    function toogleTabla(swtch) {
+        switch (swtch) {
+            case 0:
+                {
+                    $('#div_table').css("display", "none");
+                }
+                break;
+            case 1:
+                {
+                    $('#div_table').css("display", "block");
+                }
+                break;
+        }
+
+    }
+    function getInstituciones() {
+        toogleTabla(0);
+        var sede = $('#sedes').val();
+        if (sede >= 0) {
+            $.ajax({
+                type: "POST",
+                url: '?k=instituciones/getinstituciones',
+                data: {'sede': sede},
+                success: function (res) {
+                    var dat = JSON.parse(res);
+//                    console.log(dat);
+//                    return false;
+                    if (dat != '') {
+                        toogleTabla(1);
+                        $('#tabla_ies').html(dat);
+                    } else {
+                        alert('La sede seleccionada no tiene IEs asignadas');
+                    }
+                }
+            });
+        }
+        //cambiarEtiq();
+    }
+    function mostrarRegSede() {
+        cancelarIE();
+        if (!($('#btn_nuevaSede').hasClass('btn-blue'))) {
+            $('#btn_nuevaSede').addClass('btn-blue');
+        }
+        if($('#btn_nuevaIE').hasClass('btn-blue')){
+            $('#btn_nuevaIE').removeClass('btn-blue');
+        }
+        $('#selectsede').val(-1);
+        if ($('#reg_ie').css('display') == 'block') {
+            $('#reg_ie').css('display', 'none');
+        }
+        if ($('#regSede').css('display') == 'none') {
+            $('#selectsede').attr('disabled', true);
+            $('#regSede').css('display', 'block');
+        } else {
+            $('#selectsede').attr('disabled', false);
+            $('#regSede').css('display', 'none');
+        }
+    }
+    function mostrarRegIe() {
+        cancelarSede();
+        if (!($('#btn_nuevaIE').hasClass('btn-blue'))) {
+            $('#btn_nuevaIE').addClass('btn-blue');
+        }
+        if($('#btn_nuevaSede').hasClass('btn-blue')){
+            $('#btn_nuevaSede').removeClass('btn-blue');
+        }
+        if ($('#reg_ie').css('display') == 'none' && $('#regSede').css('display') == 'none') {
+            $('#selectsede').attr('disabled', false);
+            $('#reg_ie').css('display', 'block');
+        }
+        if ($('#reg_ie').css('display') == 'none' && $('#regSede').css('display') == 'block') {
+            $('#selectsede').attr('disabled', false);
+            $('#regSede').css('display', 'none');
+            $('#reg_ie').css('display', 'block');
+        }
+    }
+    /* BLOQUE SEDE */
+    function editarSede(i, ii, s) {
+        $('.sede').removeClass('is-empty');
+        $('#sedeid').val(ii);
+        $('#sede').val(s);
+        $('#idsede').val(i);
+        $('#btny-reg').css('display', 'none');
+        $('#btny-gua').css('display', 'block');
+        $('#btny-can').css('display', 'block');
+    }
+    function registrarSede() {
+        var sedeid = $('#sedeid').val();
+        var sede = $('#sede').val();
+        msje="";
+        if(sedeid=="" || sede==""){
+            if(sedeid==""){
+                msje+=" - Ingresar ID de sede \n";
+            }
+            if(sede==""){
+                msje+=" - Ingresar nombre de sede \n";
+            }
+            alert("Se encontraron los siguientes errores: \n"+msje);
+        }else{
+            $.ajax({
+                type: "POST",
+                url: '?k=instituciones/regsede',
+                data: {
+                    'sedeid': sedeid, 'sede': sede
+                },
+                success: function () {
+                    alert('Se guardo correctamente');
+                    window.location.href = "?k=instituciones";
+                }
+            });
+        }   
+    }
+
+    function actualizarSede() {
+        var id = $('#idsede').val();
+        var sedeid = $('#sedeid').val();
+        var sede = $('#sede').val();
+        $.ajax({
+            type: "POST",
+            url: '?k=instituciones/actsede',
+            data: {
+                'sedeid': sedeid, 'sede': sede, 'idsede': id
+            },
+            success: function (d) {
+                alert('Se guardo correctamente');
+                window.location.href = "?k=instituciones";
+            }
+        });
+    }
+    function cancelarSede() {
+        $('#selectsede').attr('disabled', false);
+        $('.sede').addClass('is-empty');
+        $('#sedeid').val('');
+        $('#sede').val('');
+        $('#btny-reg').css('display', 'block');
+        $('#btny-gua').css('display', 'none');
+        $('#btny-can').css('display', 'none');
+        $('#regSede').css('display', 'none');
+    }
+
+    /* BLOQUE IE */
+    function editarIE(i, s, m, n) {
+        $('#selectsede').val(s);
+        $('#modular').val(m);
+        $('#ie').val(n);
+        $('#idie').val(i);
+        $('.label-floating').removeClass('is-empty');
+        $('#btn-reg').css('display', 'none');
+        $('#btn-gua').css('display', 'block');
+        $('#btn-can').css('display', 'block');
+    }
+    function registrarIE() { //registrar IE
+        var id = $('#selectsede').val();
+        var mod = $('#modular').val();
+        var ie = $('#ie').val();
+        msje="";
+        if(id==null || mod=='' || ie==''){
+            if(id==null){
+                msje+=" - Seleccionar sede\n"
+            }
+            if(mod==''){
+                msje+=" - Ingresar código modular\n"
+            }
+            if(ie==''){
+                msje+=ie+" - Ingresar nombre de institución educativa\n"
+            }
+            alert("Se encontraron los siguientes errores: \n"+msje);
+        }else{
+            $.ajax({
+                type: "POST",
+                url: '?k=instituciones/reginstitucion',
+                data: {
+                    'mod': mod, 'ie': ie, 'id': id
+                },
+                success: function (d) {
+                    if (d == 1) {
+                        alert('Se guardo correctamente');
+                        window.location.href = "?k=instituciones";
+                    } else {
+                        alert('La institucion a registrar ya existe.');
+                    }
+                }
+            });
+        }
+    }
+    function actualizarIE() {
+        var id = $('#idie').val();
+        var idsede = $('#selectsede').val();
+        var mod = $('#modular').val();
+        var ie = $('#ie').val();
+        $.ajax({
+            type: "POST",
+            url: '?k=instituciones/actinstitucion',
+            data: {
+                'mod': mod, 'ie': ie, 'idsede': idsede, 'id': id
+            },
+            success: function (d) {
+                if (d == 1) {
+                    alert('Se guardo correctamente');
+                    window.location.href = "?k=instituciones";
+                } else {
+                    alert('La institucion a registrar ya existe.');
+                }
+            }
+        });
+    }
+    function cancelarIE() {
+        $('.label-floating').addClass('is-empty');
+        $('#selectsede').val(-1);
+        $('#modular').val('');
+        $('#ie').val('');
+        $('#btn-reg').css('display', 'block');
+        $('#btn-gua').css('display', 'none');
+        $('#btn-can').css('display', 'none');
+    }
+
+    function alertaEliminarIE(id, num) {
+        var msj = '¿Esta seguro de eliminar la institución: ' + num + '?';
+        $('#mod-msj').html(msj);
+        $('#mod-gua').attr('onclick', 'eliminarIE(' + id + ')');
+    }
+    function eliminarIE(n) {
+        $.ajax({
+            type: "POST",
+            url: '?k=instituciones/delinstitucion',
+            data: {'data': n},
+            success: function (d) {
+                alert('Se elimino correctamente');
+                window.location.href = "?k=instituciones";
+            }
+        });
+    }
+    function alertaEliminarSede(id, num) {
+        var msj = '¿Esta seguro de eliminar la sede: ' + num + '?';
+        $('#mod-msj').html(msj);
+        $('#mod-gua').attr('onclick', 'eliminarSede(' + id + ')');
+    }
+    function eliminarSede(n) {
+        $.ajax({
+            type: "POST",
+            url: '?k=instituciones/delsede',
+            data: {'data': n},
+            success: function (d) {
+                alert('Se elimino correctamente');
+                window.location.href = "?k=instituciones";
+            }
+        });
+    }
+</script>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card" id="rootwizard" style="background: none;-webkit-box-shadow:none;box-shadow:none;">
+            <div class="card-heading text-center">
+                <div class="row">
+                    <div class="col-lg-5"  style="background: #fff;border-radius: 10px;border:1px #cee9ff solid;">
+                        <h2><strong>Registro de Instituciones</strong></h2>
+                        <div class="card-body">
+                            <div class="form-group is-empty">
+                                <div class="input-group" style="width:100%;">
+                                    <!--                                    <select class="form-control" id="selectsede" onchange="mostrarRegIe();">
+                                                                            <option style="color:#ccc;" value="-1" selected disabled>Seleccione sede</option>
+                                                                            <?php foreach ($data['sedes'] as $d) { ?>
+                                                                            <option value="<?php echo $d['id'] ?>">
+                                                                                <?php echo $d['sedeid'].' - '.$d['nombre']?>
+                                                                            </option>
+                                                                            <?php }?>
+                                                                        </select>-->
+                                            <button id="btn_nuevaSede" type="button" class="btn btn-md btn-inline-block" style="width:160px;" onclick="mostrarRegSede()">
+                                                Nueva SEDE
+                                            </button>
+                                            <button id="btn_nuevaIE" type="button" class="btn btn-md btn-inline-block" style="width:160px;" onclick="mostrarRegIe()">
+                                                Nueva IE
+                                            </button>
+                                </div>
+                            </div>
+
+                            <input type="hidden" name="idsede" id="idsede" value="0">
+
+                            <div id="regSede" style="background-color: #f5fbff;border-radius: 10px;padding-bottom:10px;display:none;">
+                                <div class="form-inline">
+                                    <div class="form-group label-floating sede is-empty">
+                                        <label class="control-label ">ID Sede</label>
+                                        <input type="number" class="form-control " name="sedeid" id="sedeid" max="99">
+                                    </div>
+                                    <div class="form-group label-floating sede is-empty">
+                                        <label class="control-label ">Sede</label>
+                                        <input type="text" class="form-control" name="sede" id="sede">
+                                    </div>
+                                </div>
+                                <div class="row"><center>
+                                        <div class="col-lg-12">
+                                            <button type="submit" class="btn btn-primary btn-sm" id="btny-reg" onclick="registrarSede()">Registrar<div class="ripple-container"></div></button>
+                                        </div>
+                                        <div class="col-lg-6">                                
+                                            <button type="submit" class="btn btn-primary btn-sm" id="btny-can" style="display:none;" onclick="cancelarSede()">Cancelar<div class="ripple-container"></div></button>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <button type="submit" class="btn btn-warning btn-sm" id="btny-gua" style="display:none;" onclick="actualizarSede()">Guardar<div class="ripple-container"></div></button>
+                                        </div>
+                                    </center></div>
+
+
+                                <div class="table-responsive text-left" style="padding: 0 20px;border: 1px solid #c6e6ff;margin: 0px 10px;border-radius: 5px;background-color: #fdfeff;">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Sede</th>
+                                                <th class="text-center">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach($data['sedes'] as $d) { ?> 
+                                            <tr>
+                                                <td><?php echo $d['sedeid']; ?></td>
+                                                <th><?php echo $d['nombre']; ?></th>
+                                                <th class="text-center">
+                                                    <?php 
+                                                    $edit_params=$d['id'].'\',\''.$d['sedeid'].'\',\''.$d['nombre']; 
+                                                    $delet_params=$d['id'].'\',\''.$d['sedeid'].' - '.$d['nombre'];
+                                                    ?>
+                                                    <a href="#" style="margin:0 15px;" title="Editar" onclick="editarSede('<?php echo $edit_params; ?>');">
+                                                        <i class="zmdi zmdi-edit text-primary"></i>
+                                                    </a>
+                                                    <a href="#" style="margin:0 15px;" title="Eliminar" data-toggle="modal" data-target="#toolabr_modal" onclick="alertaEliminarSede('<?php echo $delet_params; ?>');">
+                                                        <i class="zmdi zmdi-delete text-danger"></i>
+                                                    </a>
+                                                </th>
+                                            </tr>
+                                            <?php } ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                            </div>
+
+                            <input type="hidden" name="idie" id="idie" value="0">
+                            <div id="reg_ie" style="display:none;">
+                                <select class="form-control" id="selectsede" style="margin-bottom:20px">
+                                    <option style="color:#ccc;" value="-1" selected disabled>Seleccione sede</option>
+                                    <?php foreach ($data['sedes'] as $d) { ?>
+                                    <option value="<?php echo $d['id'] ?>">
+                                        <?php echo $d['sedeid'].' - '.$d['nombre']?>
+                                    </option>
+                                    <?php }?>
+                                </select>
+                                <div class="form-group label-floating is-empty">
+                                    <label class="control-label">Código modular</label>
+                                    <input type="number" class="form-control" name="modular" id="modular" max="9999999">
+                                </div>
+                                <div class="form-group label-floating is-empty">
+                                    <label class="control-label">Nombre de la Institución Educativa</label>
+                                    <input type="text" class="form-control col-lg-5" nname="ie" id="ie">
+                                </div>
+                                <div class="row"><center>
+                                        <div class="col-lg-12">
+                                            <button type="submit" class="btn btn-primary" id="btn-reg" onclick="registrarIE()">Registrar<div class="ripple-container"></div></button>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <button type="submit" class="btn btn-primary" id="btn-can" style="display:none;" onclick="cancelarIE()">Cancelar<div class="ripple-container"></div></button>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <button type="submit" class="btn btn-warning" id="btn-gua" style="display:none;" onclick="actualizarIE()">Guardar<div class="ripple-container"></div></button></div></center>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-lg-1">  <!-- style="width: 0px;padding: 0 5px;"> --></div>
+                    <div class="col-lg-6"  style="background: #fff;border-radius: 10px;border: 1px #cee9ff solid;">
+                        <h2><strong>Instituciones registradas</strong></h2>
+                        <!--                        <div class="col-lg-12">
+                                                    
+                                                </div>-->
+                        <div class="card-body">
+                            <div class="form-group is-empty">
+                                <div class="input-group" style="width:100%;">
+                                    <select class="form-control" id="sedes" onchange="getInstituciones();">
+                                        <option style="color:#ccc;" value="-1" disabled selected hidden>Seleccione sede</option>
+                                        <option value="0">Todas las sedes</option>
+                                        <?php foreach ($data['sedes'] as $d) { ?>
+                                        <option value="<?php echo $d['id'] ?>"><?php echo $d['sedeid'].' - '.$d['nombre']?></option>
+                                        <?php }?>
+                                    </select>   
+                                </div>
+                            </div>
+                            <div class="table-responsive text-left" style="display:none;" id="div_table">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Sede</th>
+                                            <th>Cod Modular</th>
+                                            <th>Nombre de la institución</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabla_ies">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>                      
+            </div>
+        </div>
+    </div>
+</div>

@@ -12,10 +12,20 @@
         </b-form>
 
         <b-list-group>
+            
+            <contact-component 
+            v-for="conversation in conversations"
+            :key="conversation.id"
+            :conversation="conversation"
+            @click.native="selectConversation(conversation)">
 
+            </contact-component>
+            
+            
+<!-- 
             <contact-component variantg="dark"></contact-component>
             <contact-component variantg=""></contact-component>
-            <contact-component variantg="secondary"></contact-component>
+            <contact-component variantg="secondary"></contact-component> -->
 
         </b-list-group>
 
@@ -28,12 +38,27 @@
         data()
         {
             return{
-
+                conversations: []
             };
 
         },
         mounted() {
-            console.log('Component mounted.')
+            this.getConversations();
+        },
+        methods:
+        {
+            getConversations(){
+                axios.get('api/conversations')
+                .then((response)=>{
+                    this.conversations = response.data;
+                    // console.log(response.data);
+                })
+            },
+            selectConversation(conversation){
+
+                console.log(conversation);
+
+            }
         }
     }
 </script>

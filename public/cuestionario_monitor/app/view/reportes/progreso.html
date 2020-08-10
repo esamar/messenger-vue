@@ -1,0 +1,268 @@
+<link rel="stylesheet" type="text/css" href="public/css/datatables.css">
+<script type="text/javascript" charset="utf8" src="public/js/datatables.js"></script>
+<script type="text/javascript" charset="utf8" src="public/js/highcharts.js"></script>
+
+<div class="row">
+    <div class="col-lg-12 text-center">
+
+        <div class="card" id="rootwizard" style="background: none;-webkit-box-shadow:none;box-shadow:none;">
+            <div class="card-heading ">
+                <div style="background-color: #fff;border-radius:10px;padding: 30px;border: 1px solid #d6f0ff;">
+                    <button class="btn btn-primary btn-sm hidden-print btn-sm" style="position: absolute;left: 30px;top: 15px;" onclick="window.location.href = '?k=reportes'">Volver</button>                
+                    <h1><strong>Reporte progreso de directores</strong></h1>
+                    <div class='row hidden-print' id="selectIE" style="background-color: #f5fbff;border-radius: 10px;padding:0px 0px 10px;margin: 4px;">
+                        <div class="col-lg-6">
+                            <select class="form-control" id="sedes" onchange="getIES();" style="margin: 2px 0 0;">
+                                <option style="color:#ccc;" value="-1" disabled selected hidden>Seleccione sede</option>
+                                <option value="0">Todas las sedes</option>
+                                <?php foreach ($data['sedes'] as $d) { ?>
+                                <option value="<?php echo $d['id'] ?>"><?php echo $d['sedeid'].' - '.$d['nombre']?></option>
+                                <?php }?>
+                            </select>
+                        </div>
+                        <div class="col-lg-6">
+                            <select class="form-control" id="ies" onchange="consultarProgreso()">
+                                <option style="color:#ccc;" value="-1" disabled selected hidden>Seleccione IE</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" id="div_graph" style="display:none;">
+                        <div class="col-lg-12"><center><div id="stacked" class="stacked2"  style="width: 600px;padding:20px"></div></center>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row hidden-print" style="display:none;" id="div_table">
+                        <div class="col-lg-12">
+                            <div class="table-responsive" >
+                                <table class="table table-hover text-left" id="tb_progreso">
+                                    <thead>
+                                        <tr>                                                                        
+                                            <th>Ap.Paterno</th>
+                                            <th>Ap.Materno</th>
+                                            <th>Nombres</th>
+                                            <th>Sede</th>
+                                            <th>I.E</th>
+                                            <th>Grado</th>
+                                            <th>Sección</th>
+                                            <th>Semana</th>
+                                            <th>Estado</th>
+                                            <th>Iniciado</th>
+                                            <th>Finalizado</th>
+                                            <th>Tiempo requerido</th>
+                                            <th>Avance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabla">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <center>
+                                <button class="btn btn-sm btn-info hidden-print" onclick="exportar()">Exportar a Excel</button>
+                            </center>
+                        </div>
+
+                    </div>
+
+                </div>	        				               
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var etiquetas = {
+        "loadingRecords": "Cargando...",
+        "search": "Filtrar:",
+        "processing": "Procesando...",
+        "emptyTable": "No existen registros para mostrar",
+        "zeroRecords": "No se encontraron registros",
+        "info": "Mostrando _START_ a _END_ de <span style='font-size:15;font-weight: bold;'>_MAX_</span> registros",
+        "infoFiltered": "(Se encontraron _MAX_ registros)",
+        "infoEmpty": "Mostrando 0 a 0 de 0 registros",
+        "lengthMenu": "Mostrar _MENU_ registros",
+        "paginate": {
+            "first": "Primera",
+            "last": "Última",
+            "next": "Siguiente",
+            "previous": "Anterior"
+        },
+        "aria": {
+            "sortAscending": ": activar para ordenar ascendientemente",
+            "sortDescending": ": activar para ordenar descendientemente"
+        }
+    }
+    function toogleReporte(swtch) {
+        switch (swtch) {
+            case 0:
+                {
+                    $('#div_graph').css("display", "none");
+                    $('#div_table').css("display", "none");
+                }
+                break;
+            case 1:
+                {
+                    $('#div_graph').css("display", "block");
+                    $('#div_table').css("display", "block");
+                }
+                break;
+        }
+
+    }
+    function getIES() {
+        toogleReporte(0);
+        var id = $('#sedes').val();
+        switch (id) {
+            case '0':
+                {
+                    $('#ies').attr('disabled', true);
+                    consultarProgreso();
+                }
+                break;
+            default:
+                {
+                    $('#ies').attr('disabled', false);
+                    $.ajax({
+                        type: "POST",
+                        url: '?k=reportes/geties',
+                        data: {'id': id},
+                        success: function (res) {
+                            if (res != '') {
+                                $('#ies').append(res);
+                            } else {
+                                alert('La sede seleccionada no tiene IEs asignadas');
+                                $('#ies').attr('disabled', true);
+                            }
+                        }
+                    });
+                }
+                break;
+        }
+        //cambiarEtiq();
+    }
+
+    function consultarProgreso() {
+        toogleReporte(0);
+        //cambiarEtiq();
+        var sede = $('#sedes').val();
+        var ie = $('#ies').val();
+        $('#stacked').html('');
+        if (sede === '-1') {
+            return;
+        }
+        if (sede !== '-1' && ie === '-1') {
+            return;
+        }
+        $.ajax({
+            type: "POST",
+            url: '?k=reportes/repprog',
+            data: {'s': sede, 'i': ie},
+            success: function (d) {
+                var r = JSON.parse(d);
+                if (r['tabla'] == '') {
+                    if (sede == 0) {
+                        alert('No se encontraron registros para todas las sedes');
+                    } else if(ie!=0) {
+                        alert('La IE seleccionada no tiene directores asignados');
+                    } else if(ie==0) {
+                        alert('No se encontraron registros para todas las IE');
+                    }
+                } else {
+                    toogleReporte(1);
+                    grafProgreso(r['total'][0], r['total'][1], r['total'][2], r['total'][3]);
+                    $('#tabla').html(r['tabla']);
+                    $('#tb_progreso').DataTable({
+                        destroy: true,
+                        "ordering": false,
+                        "language": etiquetas
+                    });
+                }
+            }
+        });
+    }
+    function grafProgreso(finalizado, pendiente, noingreso, total) {
+        Highcharts.chart('stacked', {
+            chart: {
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false,
+                style: {
+                    fontFamily: 'Poppins'
+                },
+                type: 'pie',
+//                marginRight: marginRight,
+//                marginBottom: marginBottom,
+                marginLeft: 30,
+                height: 400
+            },
+            title: {
+                text: 'Progreso de directores'
+            },
+            subtitle: {
+                text: 'Total: ' + total
+            },
+            exporting: {enabled: false},
+            credits: {
+                enabled: false
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            },
+            plotOptions: {
+                pie: {
+                    size: 200,
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.y}',
+                        style: {
+                            color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                        }
+                    },
+                    showInLegend: true
+                }
+            },
+            series: [{
+                    name: 'Porcentaje',
+                    colorByPoint: true,
+                    data: [{
+                            name: 'Pendientes',
+                            y: parseInt(pendiente),
+                            color: "#cccccc"
+                        }, {
+                            name: 'No Ingresaron',
+                            y: parseInt(noingreso),
+                            color: "#cc3333"
+                        }, {
+                            name: 'Finalizados',
+                            y: parseInt(finalizado),
+                            color: "#3366cc",
+                            sliced: true,
+                            selected: true
+                        }]
+                }]
+        });
+    }
+
+    function cambiarEtiq() {
+        $('#stacked').html('');
+        $('#txt-sede').html(' ');
+        $('#txt-ie').html(' ');
+        var s = $('#sedes option:selected').text();
+        var i = $('#ies option:selected').text();
+        $('#txt-sede').html(s);
+        $('#txt-ie').html(i);
+    }
+
+    function exportar() {
+        var sede = $('#sedes').val();
+        var ie = $('#ies').val();
+        if (sede == -1)
+            return;
+        if (sede != -1 && ie == -1)
+            return;
+        var a = document.createElement("a");
+        a.target = "_blank";
+        a.href = "?k=reportes/exportar/" + sede + "/" + ie;
+        a.click();
+    }
+</script>

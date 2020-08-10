@@ -1,0 +1,242 @@
+
+<script>
+    console.log('total: '+ <?= $_SESSION['num_preg'] ?>);
+  
+    function getAnswered(){
+      return parseInt(localStorage.getItem('ans') || 0);
+    }
+  
+    function v(idpreg, tipopreg) { //valida y graba la respuesta
+        var preg_respondida = true;
+        if(tipopreg!=3){
+            var n = $('#num_alt').val();
+            for (var i = 0; i < n; i++) {
+                if(tipopreg==1){
+                    $('#tr' + i).removeClass('preguntas_incompletas');
+                    $('#tr' + i).addClass('preguntas');
+                    if ($('input:radio[name="a' + i + '"]:checked').val() == undefined) {
+                        preg_respondida = false;
+                        //comentado para evitar la  validación
+                        //$('#tr' + i).removeClass('preguntas');
+                        //$('#tr' + i).addClass('preguntas_incompletas');
+                    }
+                }else if(tipopreg==2){
+                    $('#tr' + i).removeClass('preguntas_incompletas');
+                    if($('input:radio[name="alt"]:checked').val() == undefined){
+                        preg_respondida = false;
+                        //comentado para evitar la  validación
+                        //$('#tr' + i).removeClass('preguntas');
+                        //$('#tr' + i).addClass('preguntas_incompletas');
+                    }
+                }
+            }
+        }
+        if (preg_respondida) {
+            localStorage.setItem('ua', getAnswered() + 1);
+            <?php //if($data['p']['numero']==$_SESSION['num_preg']){ ?>
+            if(getAnswered() < <?= $_SESSION['num_preg'] ?>){
+              console.log('FALTAN ' + getAnswered() + " | " + <?= $_SESSION['num_preg'] ?>);
+            }
+            <?php //} ?>
+            if(tipopreg==1){
+                var respuestas = '';
+                for (var i = 0; i < n; i++) {
+                    respuestas = respuestas + $('input:radio[name="a' + i + '"]:checked').val() + '-';
+                }
+            }else if(tipopreg==2){
+                var respuestas =  $('input:radio[name="alt"]:checked').val() + '-';
+            }else if(tipopreg==3){
+                var respuestas = $('#paResp').val()+" ";//se agrega espacio por que el metodo r borra un espacio al final
+            }
+            $.ajax({
+                type: "POST",
+                url: '?k=cuestionario/r',
+                data: {'v':respuestas, 'n':idpreg},
+                success: function () {
+                    window.location.href = "?k=cuestionario/inicio/<?php echo ($data['p']['numero']+1) ?>";
+                }
+            });
+        } else {
+          //agregado para continuar con preguntas no respondidas
+          window.location.href = "?k=cuestionario/inicio/<?php echo ($data['p']['numero']+1) ?>";
+        }
+    }
+//  function vv(nn){
+//    window.location.href = "?k=cuestionario/inicio/<?php echo ($data['p']['numero']+1) ?>";
+//  }
+    function g(idpreg) {
+        var cant_alt = $('#num_alt').val();
+        var respuestas = '';
+        for (var i = 0; i < cant_alt; i++) {
+            respuestas = respuestas + $('input:radio[name="a' + i + '"]:checked').val() + '-';
+        }
+//      console.log(respuestas);
+//      console.log(idpreg);
+//      return false;
+        $.ajax({
+            type: "POST",
+            url: '?k=cuestionario/r',
+            data: {'v': respuestas, 'n': idpreg},
+            success: function (d) {
+                mensajez(0, 0);
+            }
+        });
+    }
+
+    function mensajez(id, num) {
+        var msj = 'Se guardaron tus cambios correctamente.';
+        $('#mod-msj').html(msj);
+        $('#mod-bot').css('display', 'none');
+        $('#mod-mini').css('display', 'block');
+    }
+
+</script>
+<style>
+    .preguntas::after{
+        content:"";
+    }
+    .preguntas_incompletas{
+        border:2px solid #ff9a9a;
+    }
+    .preguntas_incompletas::after{        
+        content: "Incompleto";
+        font-size: 14px;
+        position: relative;
+        margin-right: 10px;
+        vertical-align: -webkit-baseline-middle;
+        /* border: 1px solid red; */
+        color: red;
+    }
+
+    .etiqueta-col
+    {
+
+        background-color: #2196f3;
+        border-radius: 5px;
+        color:#fff;    
+        padding: 0 1px;
+        min-height: 45px;
+        display: -ms-flex;
+        display: -webkit-flex;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 8pt;
+    }
+
+
+</style>
+<div class="row">
+<!--    <?php echo 'TIPO DE PREGUNTA: '.$data['p']['tipo']; ?>-->
+    <div class="col-lg-12">
+        <div class="card" id="rootwizard" style="background: none;-webkit-box-shadow:none;box-shadow:none;">
+            <div class="card-heading" style="margin: 0 auto;">
+                <?php if(false){ ?>
+                <div class="text-center"> 
+                    <?php for($i=0;$i<$_SESSION['num_preg'];$i++) { ?>
+                    <a href="?k=cuestionario/inicio/<?php echo ($i+1)?>" 
+                       class="btn <?php echo ($data['p']['numero']==($i+1))?'btn-primary':'btn-default' ?> btn-fab btn-fab-xs <?php echo ($data['p']['numero']<($i+1) || $data['p']['numero']>($i+1))?'':''; ?>" style="padding: 3px;"><?php echo ($i+1) ?></a>
+                    <?php } ?>
+                </div>
+                <?php } ?>
+
+                <div style="background-color: #fff;border-radius: 22px;margin-top: 20px;padding: 1px 10px;border: 1px solid #d6f0ff; margin: 0 auto;">
+                    <?php if($data['p']['tipo']==1){ //Matricial ?>
+                    <h1 style="font-size: 18px;"><strong><?php echo $data['p']['titulo']?></strong></h1><small style="font-size: 14px;">Seleccione solo una respuesta en cada fila.</small>
+                    <?php } else if($data['p']['tipo']==2){ //Opción única ?>
+                    <h1 style="font-size: 18px;"><strong><?php echo $data['p']['titulo']?></strong></h1><small style="font-size: 14px;">Seleccione solo una respuesta.</small>
+                    <?php } else if($data['p']['tipo']==3){ //Pregunta abierta ?>
+                    <h1 style="font-size: 18px;"><strong><?php echo $data['p']['titulo']?></strong></h1><small style="font-size: 14px;">Escriba a continuación su respuesta. Máximo 1000 caracteres.</small>
+                    <?php }?>
+                    <input type="hidden" id="num_alt" value="<?php echo sizeof($data['p']['alt']) ?>">
+                    <div class="card-body" style="padding:0 0;">
+                        <div class="table-responsive" style="padding: 2px;">
+                            <?php if($data['p']['tipo']==1){ //Matricial?>
+
+                            <table class="table table-striped text-center" style="font-size: 14px;">
+                                <thead>
+                                    <tr style="text-align: center;">
+                                        <th></th>
+                                        <th style="width: 100px;text-align: center;"><div class='etiqueta-col'><?php echo $data['p']['col1']?></div></th>
+                                        <th style="width: 100px;text-align: center;"><div class='etiqueta-col'><?php echo $data['p']['col2']?></div></th>
+                                        <?php if(strlen($data['p']['col3'])>0){?>
+                                        <th style="width: 100px;text-align: center;"><div class='etiqueta-col'><?php echo $data['p']['col3']?></div></th>
+                                        <?php }if(strlen($data['p']['col4'])>0){?>
+                                        <th style="width: 100px;text-align: center;"><div class='etiqueta-col'><?php echo $data['p']['col4']?></div></th>
+                                        <?php }if(strlen($data['p']['col5'])>0){?>
+                                        <th style="width: 100px;text-align: center;"><div class='etiqueta-col'><?php echo $data['p']['col5']?></div></th>
+                                        <?php }if(strlen($data['p']['col6'])>0){?>
+                                        <th style="width: 100px;text-align: center;"><div class='etiqueta-col'><?php echo $data['p']['col6']?></div></th>
+                                        <?php }?>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php for($i=0;$i<sizeof($data['p']['alt']);$i++) {?>
+                                    <tr id="tr<?php echo $i;?>">
+                                        <th style="text-align: justify;"><?php echo $data['p']['alt'][$i]?></th>
+                                        <td><label class="radio-inline" ><input type="radio" name="<?php echo 'a'.$i ?>" value="1" <?php echo $data['r'][$i][0]?>><label style="font-size:14px;">A</label></label></td>
+                                        <td><label class="radio-inline" ><input type="radio" name="<?php echo 'a'.$i ?>" value="2" <?php echo $data['r'][$i][1]?>><label style="font-size:14px;">B</label></label></td>
+                                        <?php if(strlen($data['p']['col3'])>0){?>
+                                        <td><label class="radio-inline" ><input type="radio" name="<?php echo 'a'.$i ?>" value="3" <?php echo $data['r'][$i][2]?>><label style="font-size:14px;">C</label></label></td>
+                                        <?php }if(strlen($data['p']['col4'])>0){?>
+                                        <td><label class="radio-inline" ><input type="radio" name="<?php echo 'a'.$i ?>" value="4" <?php echo $data['r'][$i][3]?>><label style="font-size:14px;">D</label></label></td>
+                                        <?php }if(strlen($data['p']['col5'])>0){?>
+                                        <td><label class="radio-inline" ><input type="radio" name="<?php echo 'a'.$i ?>" value="5" <?php echo $data['r'][$i][4]?>><label style="font-size:14px;">E</label></label></td>
+                                        <?php }if(strlen($data['p']['col6'])>0){?>
+                                        <td><label class="radio-inline" ><input type="radio" name="<?php echo 'a'.$i ?>" value="6" <?php echo $data['r'][$i][5]?>><label style="font-size:14px;">F</label></label></td>
+                                        <?php }?>
+                                    </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                            <?php }else if($data['p']['tipo']==2){ //Opción única ?>
+                            <table class="table table-striped text-left" >
+                                <tbody style="font-size: 15px;">                          
+                                    <?php for($i=0;$i<sizeof($data['p']['alt']);$i++) {?>
+                                    <tr id="tr<?php echo $i;?>">
+                                        <td>
+                                            <label class="radio-inline" style="margin-left:0px;margin-top:20px; display:block;" >
+                                                <input type="radio" name="alt" value="<?php echo $i+1;?>" <?php echo $data['r'][$i]; ?>> 
+                                                   <label style="font-size:14px;">
+                                                        <?php echo substr($data['p']['alt'][$i],4)?>
+                                                    </label>
+                                                       
+                                            </label>
+                                        </td>
+                                    </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                            <?php }else if($data['p']['tipo']==3){ //Pregunta abierta ?>
+                            <div class="form-group label-floating">
+                                <textarea  class="form-control" name="paResp" id="paResp" rows="5" maxlength="1000" placeholder="Escriba aquí su respuesta"
+                                style = 'border:1px solid #E0E2E2; border-bottom: none ;padding: 5px; border-radius: 3px;'
+                                ><?php echo isset($data['r']) ? $data['r'] : "" ?></textarea>
+                            </div>
+                            <?php }?>
+                        </div>
+                    </div>
+                </div> 
+                <div class="row">
+                    <div class="col-lg-4 text-left">
+                        <?php if($data['p']['numero']!=1){ ?>
+                        <a class="btn btn-primary btn-round" href="?k=cuestionario/inicio/<?php echo ($data['p']['numero']-1)?>">Regresar</a> 
+                        <?php } else { ?>
+                        <a class="btn btn-primary btn-round" href="?k=cuestionario/instrucciones">Regresar</a> 
+                        <?php }  ?>
+                    </div>
+                    <div class="col-lg-4 text-center">
+                        <?php if($data['b'] && false){ //nunca entra ?>
+                        <a class="btn btn-warning btn-round" data-toggle="modal" data-target="#toolabr_modal"  onclick="g(<?php echo $data['p']['id']?>)">Guardar</a> 
+                        <?php } ?>
+                    </div>
+                    <div class="col-lg-4 text-right">
+                        <input type="submit" value="<?php echo ($data['p']['numero']==$_SESSION['num_preg'])?'Finalizar':'Siguiente'?>" class="btn btn-primary btn-round" id="btn-next" onclick="<?php echo $data['b']?'v':'v' ?>(<?php echo $data['p']['id']?>,<?php echo $data['p']['tipo'];?>)">
+                    </div>  
+                </div>  
+            </div>
+        </div>
+    </div>
+</div>
+

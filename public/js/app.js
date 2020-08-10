@@ -56989,15 +56989,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    props: ['variantg'],
+    props: {
+        variantg: String,
+        conversation: Object
+    },
     data: function data() {
-        return {
-            name: 'Juan Ramos',
-            lastMessage: 'Tú: Hasta Luego',
-            lastTime: '1:58 pm',
-            variant: 'Dark'
-
-        };
+        return {};
     },
     mounted: function mounted() {
         console.log('Component mounted.');
@@ -57045,10 +57042,12 @@ var render = function() {
               attrs: { cols: "6", "align-self": "center" }
             },
             [
-              _c("p", { staticClass: "mb-1" }, [_vm._v(_vm._s(_vm.name))]),
+              _c("p", { staticClass: "mb-1" }, [
+                _vm._v(_vm._s(_vm.conversation.contact_name))
+              ]),
               _vm._v(" "),
               _c("p", { staticClass: "text-muted small mb-0" }, [
-                _vm._v(_vm._s(_vm.lastMessage))
+                _vm._v(_vm._s(_vm.conversation.last_message))
               ])
             ]
           ),
@@ -57058,7 +57057,7 @@ var render = function() {
             { staticClass: "d-none d-md-block", attrs: { cols: "3" } },
             [
               _c("p", { staticClass: "text-muted small" }, [
-                _vm._v(_vm._s(_vm.lastTime))
+                _vm._v(_vm._s(_vm.conversation.last_time))
               ])
             ]
           )
@@ -57157,13 +57156,40 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
-        return {};
+        return {
+            conversations: []
+        };
     },
     mounted: function mounted() {
-        console.log('Component mounted.');
+        this.getConversations();
+    },
+
+    methods: {
+        getConversations: function getConversations() {
+            var _this = this;
+
+            axios.get('api/conversations').then(function (response) {
+                _this.conversations = response.data;
+                // console.log(response.data);
+            });
+        },
+        selectConversation: function selectConversation(conversation) {
+
+            console.log(conversation);
+        }
     }
 });
 
@@ -57192,13 +57218,17 @@ var render = function() {
       _vm._v(" "),
       _c(
         "b-list-group",
-        [
-          _c("contact-component", { attrs: { variantg: "dark" } }),
-          _vm._v(" "),
-          _c("contact-component", { attrs: { variantg: "" } }),
-          _vm._v(" "),
-          _c("contact-component", { attrs: { variantg: "secondary" } })
-        ],
+        _vm._l(_vm.conversations, function(conversation) {
+          return _c("contact-component", {
+            key: conversation.id,
+            attrs: { conversation: conversation },
+            nativeOn: {
+              click: function($event) {
+                return _vm.selectConversation(conversation)
+              }
+            }
+          })
+        }),
         1
       )
     ],
@@ -57331,7 +57361,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     data: function data() {
         return {
             messages: [],
-            newMessage: ""
+            newMessage: "",
+            contactId: 2
         };
     },
     mounted: function mounted() {
@@ -57342,7 +57373,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         getMessages: function getMessages() {
             var _this = this;
 
-            axios.get('/api/messages').then(function (response) {
+            axios.get("/api/messages?contact_id=" + 2).then(function (response) {
                 console.log(response.data);
                 _this.messages = response.data;
                 // console.log(this.messages);
