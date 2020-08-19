@@ -3,18 +3,22 @@
     <b-row class="h-100">
 
         <b-col cols="8">
-            <b-card
+            <b-card no-body
                 footer-bg-variant="light"
                 footer-border-variant="dark"
                 title="Coversacion activ"
-                class="h-100"
-            >
-                <message-conversation-component 
-                v-for="message in messages"
-                :key="message.id"
-                :written-by-me = "message.written_by_me">
-                    {{message.content}}
-                </message-conversation-component>
+                class="h-100">
+
+                <b-card-body class="car-body-scroll"> 
+
+                    <message-conversation-component 
+                        v-for="message in messages"
+                        :key="message.id"
+                        :written-by-me = "message.written_by_me">
+                        {{message.content}}
+                    </message-conversation-component>
+
+                </b-card-body>
                     
                 <div slot="footer">
 
@@ -44,7 +48,7 @@
         <b-col cols="4">
 
             <b-img rounded="circle" blank width="60" height="60" blank-color="#777" alt="Circle image"></b-img>
-            <p>Usuario seleccionado</p>
+            <p>{{contactName}}</p>
             <hr>
             <b-form-checkbox>
                 Desactivar notificaciones
@@ -55,37 +59,37 @@
     </b-row>
 
 </template>
+<style>
+    .car-body-scroll
+    {
+        max-height: calc(100vh - 63px);
+        overflow-y: auto;
+
+    }
+</style>
 
 <script>
     export default {
+        props:{
+            contactId: Number,
+            contactName: String,
+            messages: Array
+        },
         data()
         {
             return{
-                messages: [],
-                newMessage: "",
-                contactId: 2
+                newMessage: ""
             };
-
         },
-        mounted() {
-            this.getMessages();
+        mounted(){
+
         },
         methods:
         {
-            getMessages()
-            {
-                axios.get(`/api/messages?contact_id=${2}`)
-                .then((response)=> {
-                    console.log(response.data);
-                    this.messages= response.data;
-                    // console.log(this.messages);
-
-                });
-            },
             postMessage()
             {
                 const params = {
-                    to_id : 2,
+                    to_id : this.contactId,
                     content : this.newMessage
                 };
 
@@ -93,13 +97,25 @@
                 .then((response)=> {
                     if (response.data.success)
                     {
-                        console.log(response.data);
                         this.newMessage="";
-                        this.getMessages();
+                        const message = response.data.message;
+                        message.written_by_me = true;
+                        this.$emit('messageCreated', message);
                     }
 
                 });
+            },
+            scrollToBottom()
+            {
+                const el = document.querySelector(".car-body-scroll");
+                el.scrollTop =el.scrollHeight;
             }
+        },
+        updated()
+        {
+            this.scrollToBottom();
+            console.log("messages has changed")
         }
     }
 </script>
+
