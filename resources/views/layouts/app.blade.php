@@ -17,7 +17,7 @@
         <b-navbar toggleable="sm" type="dark" variant="dark">
             <b-navbar-toggle target="nav-text-collapse"></b-navbar-toggle>
 
-            <b-navbar-brand href="{{ url('/') }}">
+            <b-navbar-brand href="{{ url('/home') }}">
                 {{ config('app.name', 'Laravel') }}
             </b-navbar-brand>
 
@@ -31,6 +31,10 @@
 
                         <!-- Navbar dropdowns -->
                         <b-nav-item-dropdown text="{{ auth()->user()->name }}" right>
+                            <b-dropdown-item href="{{ url('/profile') }}">
+                                Modificar perfil
+                            </b-dropdown-item>
+                        
                             <b-dropdown-item href="#" @click="logout">
                                 Cerrar sesión
                             </b-dropdown-item>
@@ -51,6 +55,14 @@
     </div>
 
     <!-- Scripts -->
-    <script src="{{ asset('js/app.js') }}"></script>
+    <!-- cambiamos de asset a mix, esto es laravelmix para que 
+    siempre se muestre una nueva version del app.js y no 
+    tener problemas con el cachè 
+    para que funcione, se debe gregar en webpack.mix
+    los metodos para produccion o para desarrollo
+    
+    -->
+    <!-- <script src="{{ asset('js/app.js') }}"></script> -->
+    <script src="{{ mix('js/app.js') }}"></script>
 </body>
 </html>
