@@ -3,10 +3,10 @@
         <b-list-group>
             
             <contact-component 
-            v-for="conversation in conversations"
+            v-for="conversation in conversationsFiltered"
             :key="conversation.id"
             :conversation="conversation"
-            :selected="selectedConversationId === conversation.id"
+            :selected="isSelected(conversation)"
             @click.native="selectConversation(conversation)">
 
             </contact-component>
@@ -17,31 +17,32 @@
 
 <script>
     export default {
-        props:{
-            conversations : Array
-        },
-        data()
-        {
-            return{
-                selectedConversationId: null
-            };
-
-        },
-        mounted() {
-        },
         methods:
         {
- 
+            isSelected(conversation){
+
+                if(this.selectedConversation)
+                {
+                    return this.selectedConversation.id === conversation.id;
+                }
+
+                return false;
+            },
             selectConversation(conversation){
-                this.selectedConversationId = conversation.id;
 
-                this.$emit('conversationSelected', conversation);
-                // console.log(conversation);
-
-                // ejemplo con eventbuss
-                eventBus.$emit("example", conversation);
-
+                this.$store.dispatch('getMessages', conversation);
+            }
+        },
+        computed:{
+            selectedConversation()
+            {
+                return this.$store.state.selectedConversation;
+            },
+            conversationsFiltered()
+            {
+                return this.$store.getters.conversationsFiltered;
             }
         }
     }
 </script>
+   
