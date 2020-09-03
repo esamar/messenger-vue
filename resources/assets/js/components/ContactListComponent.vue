@@ -3,11 +3,11 @@
         <b-list-group>
             
             <contact-component 
-            v-for="conversation in conversationsFiltered"
-            :key="conversation.id"
-            :conversation="conversation"
-            :selected="isSelected(conversation)"
-            @click.native="selectConversation(conversation)">
+                v-for="conversation in conversationsFiltered"
+                :key="conversation.id"
+                :conversation="conversation"
+                :selected="isSelected(conversation)"
+                @click.native="selectConversation(conversation)">
 
             </contact-component>
 
@@ -30,7 +30,18 @@
             },
             selectConversation(conversation){
 
-                this.$store.dispatch('getMessages', conversation);
+                // this
+                //     .$store
+                //     .dispatch('getMessages', conversation)
+                //     .then(()=>{
+                //         this.$router.push(`/chat/${conversation.id}`);
+                //     });
+
+
+                this.$router.push(`/chat/${conversation.id}`, ()=>{
+                    this.$store.dispatch('getMessages', conversation);
+                });
+
             }
         },
         computed:{

@@ -1,16 +1,15 @@
 import Vue from 'vue'
-
 import Vuex from 'vuex'
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-      messages:[],
-      selectedConversation: null,
-      conversations: [],
-      querySearch: '',
-      user: null
+        messages: [],
+        selectedConversation: null,
+        conversations: [],
+        querySearch: '',
+        user: null
     },
     mutations:
     {
@@ -63,10 +62,10 @@ export default new Vuex.Store({
         } ,
         getConversations(context)
         {
-            axios.get('api/conversations')
+            return axios.get('/api/conversations')
             .then((response)=>{
                 context.commit('newConversationsList' , response.data );
-            })
+            });
         },
         postMessage(context ,  newMessage)
         {
@@ -89,14 +88,20 @@ export default new Vuex.Store({
         }
     },
     getters:{
-        conversationsFiltered(state)
-        {
+        conversationsFiltered(state){
             return state.conversations.filter(
                 (conversation)=> 
                     conversation.contact_name
                         .toLowerCase()
                         .includes(state.querySearch.toLowerCase())
             );
+        },
+        getConversationById(state){
+            return conversationId => {
+                return state.conversations.find(
+                    conversation => conversation.id == conversationId
+                );
+            }
         }
     }
   });

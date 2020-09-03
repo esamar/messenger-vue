@@ -33,9 +33,20 @@
             user: Object
         },
         mounted() {
+            
             this.$store.commit('setUser', this.user);
-            this.$store.dispatch('getConversations');
+            this.$store
+                .dispatch('getConversations')
+                .then(()=>{
+                    const conversationId = this.$route.params.conversationId;
+                    if(conversationId)
+                    {
+                        const conversation = this.$store.getters.getConversationById(conversationId);
+                        this.$store.dispatch('getMessages', conversation);
+                    }
 
+                });
+        
             Echo.private(`users.${this.user.id}`)
             .listen('MessageSend',(data) => {
                 const message = data.message;
@@ -62,11 +73,11 @@
         },
         methods:
         {
-            // changeActiveConversation(conversation)
-            // {
-            //     this.selectedConversation = conversation;
-            //     this.getMessages();
-            // },   
+            
+            addMessage(message)
+            {
+                this.$store.commit('addMessage', message);
+            },
             changeStatus(user, status)
             {
                 const index = this.$store.state.conversations.findIndex((conversation)=>{

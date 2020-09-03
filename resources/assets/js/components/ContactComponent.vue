@@ -32,16 +32,6 @@
             conversation : Object,
             selected: Boolean
         },
-        data()
-        {
-            return{
-
-            };
-
-        },
-        mounted() {
-            console.log('Component mounted.')
-        },
         computed:{
             lastTime(){
                 return moment( this.conversation.last_time , "YYYY-MM-DD hh:mm:ss")

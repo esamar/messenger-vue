@@ -77,15 +77,20 @@
             };
         },
         mounted(){
-            eventBus.$on("example", function(data){
-                console.log("Ocurrio el evento example" , data );
-            })
+            // eventBus.$on("example", function(data){
+            //     console.log("Ocurrio el evento example" , data );
+            // })
         },
         methods:
         {
             postMessage()
             {
-                this.$store.dispatch("postMessage", this.newMessage);
+                this.$store
+                    .dispatch("postMessage", this.newMessage)
+                    .then(()=>{
+                        this.newMessage ="";
+
+                    });
             },
             scrollToBottom()
             {
